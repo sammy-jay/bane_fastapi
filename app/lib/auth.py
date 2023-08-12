@@ -37,7 +37,6 @@ def authenticate_user(db, email: str, password: str):
     user = get_user(db, email)
     if not user:
         return False
-    print("authenticate function", password, user.password)
     if not verify_password(password, user.password):
         return False
     return user
