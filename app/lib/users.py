@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.schemas import users
 from app.models.user import User
 
+from . import auth as authLib
 
 
 def getUserByEmail(db: Session, email: str):
@@ -17,7 +18,7 @@ def getUserById(db: Session, post_id: int):
     return None
 
 def createUser(db: Session, user: users.UserCreate) -> users.User:
-    db_user = User(**user.model_dump())
+    db_user = User(email=user.email, name=user.name, password=authLib.get_password_hash(user.password))
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
