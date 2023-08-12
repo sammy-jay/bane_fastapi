@@ -1,21 +1,17 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 
-from app.database import SessionLocal, engine
+from app.database import get_db, engine
 from app.schemas import posts
-from app.lib import posts as postsLib
+from app.lib import posts as postsLib, auth as authLib
 from app.models.post import Post
 
 Post.metadata.create_all(bind=engine)
 
-router = APIRouter(prefix="/posts", tags=["Posts"])
+router = APIRouter(
+    prefix="/posts", 
+    tags=["Posts"])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.get("/")
 def getAllPosts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
@@ -30,7 +26,9 @@ def getPostById(post_id: int, db: Session = Depends(get_db)):
     return {"data": db_post}
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def createPost(post: posts.PostCreate, db: Session = Depends(get_db)):
+def createPost(post: posts.PostCreate,
+   db: Session = Depends(get_db)
+    ):
     db_post = postsLib.createPost(db, post)
     return {"data": db_post} 
 
