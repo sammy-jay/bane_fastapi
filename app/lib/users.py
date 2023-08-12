@@ -22,4 +22,5 @@ def createUser(db: Session, user: users.UserCreate) -> users.User:
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    del db_user.password
     return db_user

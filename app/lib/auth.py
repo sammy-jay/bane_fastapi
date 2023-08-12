@@ -39,6 +39,7 @@ def authenticate_user(db, email: str, password: str):
         return False
     if not verify_password(password, user.password):
         return False
+    del user.password
     return user
 
 
