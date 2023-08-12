@@ -12,34 +12,37 @@ def findPost(post_id: int):
             return post
     return None
 
-def getAllPosts():
-    return all_posts
+def getAllPosts(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(Post).offset(skip).limit(limit).all()
 
-def getPostById(post_id: int):
-    post = findPost(post_id)
-    if post:
-        return post
-   
-    return False
+def getPostById(db: Session, post_id: int):
+    db_post = db.query(Post).filter(Post.id == post_id).first()
+    if db_post:
+        return db_post
 
-def createPost(post: posts.PostCreate):
-    new_post = {
-        "id": len(all_posts) + 1,
-        **post.model_dump()
-    }
-    all_posts.append(new_post)
-    return new_post
+    return None
 
-def updatePost(post_id: int, post: posts.PostUpdate):
-    found_post = findPost(post_id)
-    if found_post:
-        return found_post
-   
-    return False
+def createPost(db: Session, post: posts.PostCreate):
+    db_post = Post(title=post.title, content=post.content)
+    db.add(db_post)
+    db.commit()
+    db.refresh(db_post)
+    return db_post
 
-def deletePost(post_id: int):
-    found_post = findPost(post_id)
-    if found_post:
-        return found_post
-   
-    return False
+def updatePost(db: Session, post_id: int, post: posts.PostUpdate):
+    db_post = db.query(Post).filter(Post.id == post_id).first()
+    if db_post:
+        for key, value in post.model_dump().items():
+            setattr(db_post, key, value)
+        db.commit()
+        db.refresh(db_post)
+        return db_post
+    return None
+
+def deletePost(db: Session, post_id: int):
+    db_post = db.query(Post).filter(Post.id == post_id).first()
+    if db_post:
+        db.delete(db_post)
+        db.commit()
+        return db_post
+    return None
