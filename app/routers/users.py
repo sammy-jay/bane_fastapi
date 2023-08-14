@@ -5,8 +5,10 @@ from app.database import get_db, engine
 from app.schemas import users
 from app.lib import users as usersLib
 from app.models.user import User
+from app.models.address import Address
 
 User.metadata.create_all(bind=engine)
+Address.metadata.create_all(bind=engine)
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
