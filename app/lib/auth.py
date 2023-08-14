@@ -2,12 +2,13 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from typing import Annotated
-
+from sqlalchemy.orm import Session
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
+from app.database import get_db
 from app.schemas import auth as authSchema
 from . import users
 
@@ -16,6 +17,7 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -28,7 +30,7 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-def get_user(db, email: str):
+def get_user(db: Session, email: str):
     user = users.getUserByEmail(db, email)
     if user:
         return user
@@ -41,7 +43,6 @@ def authenticate_user(db, email: str, password: str):
         return False
     del user.password
     return user
-
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
