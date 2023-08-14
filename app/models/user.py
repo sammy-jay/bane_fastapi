@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -9,3 +10,6 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     name = Column(String)
     password = Column(String)
+
+    address = relationship("Address", uselist=False, back_populates="user")
+    posts = relationship("Post", back_populates="author")
